@@ -1,4 +1,6 @@
 async function GetRecommendedMovies(userId) {
+  const proxy=process.env.REACT_APP_PROXY;
+
   try {
     const response = await fetch(`http://localhost:8080/api/v1/order/${userId}`, {
       method: 'GET',

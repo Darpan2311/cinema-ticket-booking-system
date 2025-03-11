@@ -1,7 +1,9 @@
 async function FetchGenres(ACCESS_TOKEN) {
   try {
+    const proxy=process.env.REACT_APP_PROXY;
+
     const response = await fetch(
-      'https://api.themoviedb.org/3/genre/movie/list?language=en',
+      proxy+'https://api.themoviedb.org/3/genre/movie/list?language=en',
       {
         method: 'GET',
         headers: {

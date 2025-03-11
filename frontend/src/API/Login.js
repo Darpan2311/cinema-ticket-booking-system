@@ -1,5 +1,7 @@
 async function Login(BASE_URL, email, password) {
   try {
+    const proxy=process.env.REACT_APP_PROXY;
+
     const response = await fetch(`${BASE_URL}/login`, {
       method: 'POST',
       headers: {

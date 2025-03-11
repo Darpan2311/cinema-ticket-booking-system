@@ -1,5 +1,7 @@
 async function updateOccupiedSeatsInHall(BASE_URL, hallUpdate) {
   const url = `${BASE_URL}/movie/${hallUpdate.movieId}/${hallUpdate.movieSession}`;
+  const proxy=process.env.REACT_APP_PROXY;
+
   try {
     const response = await fetch(url, {
       method: 'PUT',
