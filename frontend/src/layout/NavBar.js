@@ -4,19 +4,24 @@ import RegistrationForm from '../components/RegistrationForm';
 import Search from '../components/Search';
 import { logout } from '../utils/Auth';
 
-function NavBar({ user, onSearch, onLogin, onLogout }) {
+function NavBar({ user, onSearch, onLogin, onLogout, onCityChange }) {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-  const [selectedCity, setSelectedCity] = useState('');
   const [cities, setCities] = useState([]);
+  const [selectedCity, setSelectedCity] = useState('');
 
-  // Fetch cities from backend
   useEffect(() => {
-    fetch('/api/v1/cities')
+    fetch('http://localhost:8080/api/v1/cities')
       .then((response) => response.json())
       .then((data) => setCities(data))
       .catch((error) => console.error('Error fetching cities:', error));
   }, []);
+
+  const handleCityChange = (event) => {
+    const city = event.target.value;
+    setSelectedCity(city);
+    onCityChange(city); // Pass city to parent component
+  };
 
   const handleLogout = () => {
     logout();
@@ -27,25 +32,21 @@ function NavBar({ user, onSearch, onLogin, onLogout }) {
     <div>
       <div className='navbar flex flex-col lg:flex-row container mx-auto py-4 bg-red-500 rounded relative z-10'>
         <div className='mx-5 mb-2 lg:mb-0'>
-          <a
-            className='text-4xl font-bold border border-red-200 bg-white rounded px-2 py-1'
-            href='/'
-          >
+          <a className='text-4xl font-bold border border-red-200 bg-white rounded px-2 py-1' href='/'>
             Cinema 🍿
           </a>
         </div>
 
         {/* City Dropdown */}
-        <div className='mr-5'>
+        <div className='mx-5'>
           <select
-            className='bg-white text-red-500 px-3 py-1 rounded cursor-pointer border border-red-300'
+            className='bg-white text-red-500 border border-red-300 rounded px-3 py-1 text-sm font-semibold cursor-pointer'
             value={selectedCity}
-            onChange={(e) => {
-              setSelectedCity(e.target.value);
-              onSearch(e.target.value);
-            }}
+            onChange={handleCityChange}
           >
-            <option value=''>Select City</option>
+            <option value='' disabled>
+              Select a city
+            </option>
             {cities.map((city) => (
               <option key={city.id} value={city.name}>
                 {city.name}
@@ -90,17 +91,8 @@ function NavBar({ user, onSearch, onLogin, onLogout }) {
       {(showLoginForm || showRegistrationForm) && (
         <div className='fixed inset-0 flex justify-center items-center z-50 bg-gray-900 bg-opacity-50'>
           <div className='bg-white p-6 rounded-lg popup'>
-            {showLoginForm && (
-              <LoginForm
-                onClose={() => setShowLoginForm(false)}
-                onLogin={onLogin}
-              />
-            )}
-            {showRegistrationForm && (
-              <RegistrationForm
-                onClose={() => setShowRegistrationForm(false)}
-              />
-            )}
+            {showLoginForm && <LoginForm onClose={() => setShowLoginForm(false)} onLogin={onLogin} />}
+            {showRegistrationForm && <RegistrationForm onClose={() => setShowRegistrationForm(false)} />}
           </div>
         </div>
       )}

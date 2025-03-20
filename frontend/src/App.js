@@ -10,6 +10,7 @@ import { isLoggedIn, login, logout } from './utils/Auth';
 function App() {
   const [searchText, setSearchText] = useState('');
   const [user, setUser] = useState(null);
+  const [selectedCity, setSelectedCity] = useState('');
 
   useEffect(() => {
     const loggedInUser = isLoggedIn();
@@ -32,6 +33,10 @@ function App() {
     logout();
   };
 
+  const handleCityChange = (city) => {
+    setSelectedCity(city);
+  };
+
   return (
     <div className='App'>
       <BrowserRouter>
@@ -40,11 +45,12 @@ function App() {
           onSearch={handleSearch}
           onLogin={handleLogin}
           onLogout={handleLogout}
+          onCityChange={handleCityChange}
         />
         <Routes>
           <Route
             path='/'
-            element={<Home searchText={searchText} user={user} />}
+            element={<Home searchText={searchText} user={user} selectedCity={selectedCity} />}
           />
           <Route path='/movie/:id' element={<MovieDetails />} />
         </Routes>

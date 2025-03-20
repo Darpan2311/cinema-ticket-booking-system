@@ -6,7 +6,7 @@ import Genres from './Genre';
 import MovieCard from './MovieCard';
 import RecommendedMovies from './RecommendedMovies';
 
-const MovieList = ({ searchText }) => {
+const MovieList = ({ searchText, selectedCity }) => {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -15,13 +15,20 @@ const MovieList = ({ searchText }) => {
 
   const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN || '';
 
+  // Hardcoded excluded movie indexes for each city
+  const excludedMoviesByCity = {
+    Rajkot: [2, 4, 6, 34, 23, 11],
+    Mumbai: [1, 5, 9, 20, 30],
+    Delhi: [3, 7, 15, 21, 33],
+  };
+
   useEffect(() => {
     const fetchMoviesBySearch = async () => {
       if (searchText) {
         const response = await FetchMoviesBySearch(
           ACCESS_TOKEN,
           page,
-          searchText,
+          searchText
         );
         if (response) {
           const { filteredMovies, totalPages } = response;
@@ -46,6 +53,10 @@ const MovieList = ({ searchText }) => {
     fetchMoviesByGenre();
   }, [page, genreIds, searchText, ACCESS_TOKEN]);
 
+  // Filter out movies based on the excluded indexes for the selected city
+  const excludedIndexes = excludedMoviesByCity[selectedCity] || [];
+  const filteredMovies = movies.filter((_, index) => !excludedIndexes.includes(index));
+
   const handleNextPage = () => {
     if (page < totalPages) {
       setPage(page + 1);
@@ -69,7 +80,7 @@ const MovieList = ({ searchText }) => {
 
       <h1 className='text-left font-bold mb-4'>All Movies</h1>
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-        {movies.map((movie, index) => (
+        {filteredMovies.map((movie, index) => (
           <MovieCard key={movie.id} movie={movie} hallNumber={index} />
         ))}
       </div>

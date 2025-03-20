@@ -1,10 +1,10 @@
 import React from 'react';
 import MovieList from '../components/MovieList';
 
-function Home({ searchText }) {
+function Home({ searchText, selectedCity }) {
   return (
     <div>
-      <MovieList searchText={searchText} />
+      <MovieList searchText={searchText} selectedCity={selectedCity} />
     </div>
   );
 }
