@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginForm from '../components/LoginForm';
 import RegistrationForm from '../components/RegistrationForm';
 import Search from '../components/Search';
@@ -7,6 +7,16 @@ import { logout } from '../utils/Auth';
 function NavBar({ user, onSearch, onLogin, onLogout }) {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('');
+  const [cities, setCities] = useState([]);
+
+  // Fetch cities from backend
+  useEffect(() => {
+    fetch('/api/v1/cities')
+      .then((response) => response.json())
+      .then((data) => setCities(data))
+      .catch((error) => console.error('Error fetching cities:', error));
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -24,14 +34,35 @@ function NavBar({ user, onSearch, onLogin, onLogout }) {
             Cinema 🍿
           </a>
         </div>
+
+        {/* City Dropdown */}
+        <div className='mr-5'>
+          <select
+            className='bg-white text-red-500 px-3 py-1 rounded cursor-pointer border border-red-300'
+            value={selectedCity}
+            onChange={(e) => {
+              setSelectedCity(e.target.value);
+              onSearch(e.target.value);
+            }}
+          >
+            <option value=''>Select City</option>
+            {cities.map((city) => (
+              <option key={city.id} value={city.name}>
+                {city.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className='flex-grow lg:flex lg:justify-end items-center'>
           <Search onSearch={onSearch} />
         </div>
+
         <div className='flex flex-col lg:flex-row justify-center items-center mr-5'>
           <div className='lg:flex lg:justify-center min-[200px]:space-x-8 sm:space-x-8 lg:space-x-4'>
             {user ? (
               <button
-                className={`bg-white text-red-500 hover:text-white hover:bg-red-700 rounded px-3 py-1 text-sm font-semibold cursor-pointer h-9`}
+                className='bg-white text-red-500 hover:text-white hover:bg-red-700 rounded px-3 py-1 text-sm font-semibold cursor-pointer h-9'
                 onClick={handleLogout}
               >
                 Logout
@@ -39,13 +70,13 @@ function NavBar({ user, onSearch, onLogin, onLogout }) {
             ) : (
               <>
                 <button
-                  className={`bg-white text-red-500 hover:text-white hover:bg-red-700 rounded px-3 py-1 text-sm font-semibold cursor-pointer h-9`}
+                  className='bg-white text-red-500 hover:text-white hover:bg-red-700 rounded px-3 py-1 text-sm font-semibold cursor-pointer h-9'
                   onClick={() => setShowLoginForm(true)}
                 >
                   Login
                 </button>
                 <button
-                  className={`bg-white text-red-500 hover:text-white hover:bg-red-700 rounded px-3 py-1 text-sm font-semibold cursor-pointer h-9`}
+                  className='bg-white text-red-500 hover:text-white hover:bg-red-700 rounded px-3 py-1 text-sm font-semibold cursor-pointer h-9'
                   onClick={() => setShowRegistrationForm(true)}
                 >
                   Register
@@ -55,6 +86,7 @@ function NavBar({ user, onSearch, onLogin, onLogout }) {
           </div>
         </div>
       </div>
+
       {(showLoginForm || showRegistrationForm) && (
         <div className='fixed inset-0 flex justify-center items-center z-50 bg-gray-900 bg-opacity-50'>
           <div className='bg-white p-6 rounded-lg popup'>
