@@ -4,10 +4,12 @@ import FetchMovieDetails from '../API/GetMovieDetails';
 import SeatPlan from '../components/SeatPlan';
 import FormatDate from '../utils/FormatDate';
 import FormatRuntime from '../utils/FormatRuntime';
+import MovieSessions from '../mockData/MovieSessions';
 
 const MovieDetails = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
 
   const API_KEY = process.env.REACT_APP_API_KEY || '';
 
@@ -23,6 +25,9 @@ const MovieDetails = () => {
   if (!movie) {
     return <div>Loading...</div>;
   }
+
+  // Generate session timings for this movie
+  const movieSessions = MovieSessions(movie, 1); // Assuming Hall 1, update if needed
 
   return (
     <div>
@@ -57,43 +62,36 @@ const MovieDetails = () => {
               <p className='text-gray-800 mt-2 text-sm md:text-sm lg:text-base'>
                 <b>Release Date:</b> {FormatDate(movie.release_date)}
               </p>
-              <p className='text-gray-800 mt-2 text-sm md:text-sm lg:text-base'>
-                <b>Production Companies:</b>{' '}
-                {movie.production_companies
-                  .map((company) => company.name)
-                  .join(', ')}
-              </p>
-              <p className='text-gray-800 mt-2 text-sm md:text-sm lg:text-base'>
-                <b>Production Countries:</b>{' '}
-                {movie.production_countries
-                  .map((country) => country.name)
-                  .join(', ')}
-              </p>
-              <p className='text-gray-800 mt-2 text-sm md:text-sm lg:text-base'>
-                <b>Spoken Languages:</b>{' '}
-                {movie.spoken_languages
-                  .map((lang) => lang.english_name)
-                  .join(', ')}
-              </p>
-              <p className='text-gray-800 mt-2 text-sm md:text-sm lg:text-base'>
-                <b>Budget:</b> ${movie.budget.toLocaleString()}
-              </p>
-              <p className='text-gray-800 mt-2 text-sm md:text-sm lg:text-base'>
-                <b>Revenue:</b> ${movie.revenue.toLocaleString()}
-              </p>
-              <a
-                className='text-blue-500 mt-2 block'
-                href={movie.homepage}
-                target='_blank'
-                rel='noopener noreferrer'
-              >
-                Visit Homepage
-              </a>
+
+              {/* Session Timings */}
+              <div className='mt-4'>
+                <h3 className='text-lg font-semibold mb-2'>Available Showtimes:</h3>
+                <div className='flex flex-wrap gap-2'>
+                  {movieSessions.map((session, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedSession(session)}
+                      className='bg-red-500 text-white px-3 py-1 rounded text-sm'
+                    >
+                      {session.time} - {session.language}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Show SeatPlan only when a session is selected */}
+          {selectedSession && (
+            <div className='mt-6'>
+              <h3 className='text-lg font-semibold mb-2'>
+                Seat Plan for {selectedSession.time} - {selectedSession.language}
+              </h3>
+              <SeatPlan movie={movie} session={selectedSession} />
+            </div>
+          )}
         </div>
       </div>
-      <SeatPlan movie={movie} />
     </div>
   );
 };

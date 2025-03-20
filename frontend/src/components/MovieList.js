@@ -15,7 +15,7 @@ const MovieList = ({ searchText, selectedCity }) => {
 
   const ACCESS_TOKEN = process.env.REACT_APP_ACCESS_TOKEN || '';
 
-  // Hardcoded excluded movie indexes for each city
+  // Excluded movie positions per city (random 25 indexes from 1-50)
   const excludedMoviesByCity = {
     Ahmedabad: [3, 7, 12, 18, 22, 25, 27, 30, 32, 35, 38, 40, 42, 44, 47, 50, 2, 5, 9, 13, 16, 21, 28, 34, 48],
     Surat: [1, 6, 8, 10, 14, 17, 20, 23, 26, 29, 31, 33, 36, 39, 41, 43, 45, 46, 49, 4, 11, 15, 19, 24, 37],
@@ -39,40 +39,43 @@ const MovieList = ({ searchText, selectedCity }) => {
     Valsad: [1, 6, 8, 10, 14, 17, 20, 23, 26, 29, 31, 33, 36, 39, 41, 43, 45, 46, 49, 4, 11, 15, 19, 24, 37],
   };
   
+
   useEffect(() => {
-    const fetchMoviesBySearch = async () => {
+    const fetchMovies = async () => {
+      let response;
       if (searchText) {
-        const response = await FetchMoviesBySearch(
-          ACCESS_TOKEN,
-          page,
-          searchText
-        );
-        if (response) {
-          const { filteredMovies, totalPages } = response;
-          setMovies(filteredMovies);
-          setTotalPages(totalPages);
+        response = await FetchMoviesBySearch(ACCESS_TOKEN, page, searchText);
+      } else {
+        response = await FetchMoviesByGenre(ACCESS_TOKEN, page, genreIds);
+      }
+
+      if (response) {
+        let { filteredMovies, totalPages } = response;
+
+        // Exclude movies based on position in the list
+        const excludedIndexes = excludedMoviesByCity[selectedCity] || [];
+        let finalMovies = filteredMovies.filter((_, index) => !excludedIndexes.includes(index + 1));
+
+        // Ensure at least 8 movies per page
+        let additionalPage = page;
+        while (finalMovies.length < 12 && additionalPage < totalPages) {
+          additionalPage += 1;
+          const extraResponse = await FetchMoviesByGenre(ACCESS_TOKEN, additionalPage, genreIds);
+          if (extraResponse) {
+            const extraMovies = extraResponse.filteredMovies.filter(
+              (_, index) => !excludedIndexes.includes(index + 1)
+            );
+            finalMovies.push(...extraMovies);
+          }
         }
+
+        setMovies(finalMovies.slice(0, 12)); // Ensure only 8 movies are displayed
+        setTotalPages(totalPages);
       }
     };
 
-    const fetchMoviesByGenre = async () => {
-      if (!searchText) {
-        const response = await FetchMoviesByGenre(ACCESS_TOKEN, page, genreIds);
-        if (response) {
-          const { filteredMovies, totalPages } = response;
-          setMovies(filteredMovies);
-          setTotalPages(totalPages);
-        }
-      }
-    };
-
-    fetchMoviesBySearch();
-    fetchMoviesByGenre();
-  }, [page, genreIds, searchText, ACCESS_TOKEN]);
-
-  // Filter out movies based on the excluded indexes for the selected city
-  const excludedIndexes = excludedMoviesByCity[selectedCity] || [];
-  const filteredMovies = movies.filter((_, index) => !excludedIndexes.includes(index));
+    fetchMovies();
+  }, [page, genreIds, searchText, selectedCity]);
 
   const handleNextPage = () => {
     if (page < totalPages) {
@@ -89,15 +92,11 @@ const MovieList = ({ searchText, selectedCity }) => {
   return (
     <div className='container mx-auto px-4 py-4'>
       <Genres setGenreIds={setGenreIds} />
-      {userLoggedIn && (
-        <div>
-          <RecommendedMovies />
-        </div>
-      )}
+      {userLoggedIn && <RecommendedMovies />}
 
       <h1 className='text-left font-bold mb-4'>All Movies</h1>
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-        {filteredMovies.map((movie, index) => (
+        {movies.map((movie, index) => (
           <MovieCard key={movie.id} movie={movie} hallNumber={index} />
         ))}
       </div>
