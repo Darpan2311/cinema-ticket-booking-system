@@ -1,8 +1,10 @@
 function login(userData) {
+  alert("login successfully");
   localStorage.setItem('user', JSON.stringify(userData));
 }
 
 function logout() {
+  alert("logout successfully");
   localStorage.removeItem('user');
 }
 

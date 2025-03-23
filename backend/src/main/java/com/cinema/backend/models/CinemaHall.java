@@ -94,4 +94,7 @@ public class CinemaHall {
                 ", updatedSeats=" + updatedSeats +
                 '}';
     }
+
+
+
 }

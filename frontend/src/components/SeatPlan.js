@@ -10,7 +10,7 @@ import SeatShowcase from './SeatShowcase';
 const movies = [
   {
     title: '',
-    price: 10,
+    price: 250,
     occupied: generateRandomOccupiedSeats(1, 64, 64),
   },
 ];
@@ -188,7 +188,7 @@ function SeatPlan({ movie }) {
           {selectedSeats.length > 0 && (
             <>
               for the price of{' '}
-              <span className='total font-semibold'>{totalPrice}€</span>
+              <span className='total font-semibold'>{totalPrice}₹</span>
             </>
           )}
         </p>
@@ -199,7 +199,7 @@ function SeatPlan({ movie }) {
               className='bg-green-500 hover:bg-green-700 text-white rounded px-3 py-2 text-sm font-semibold cursor-pointer'
               onClick={handleButtonClick}
             >
-              Buy at <span className='total font-semibold'>{totalPrice}€</span>
+              Buy at <span className='total font-semibold'>{totalPrice}₹</span>
             </button>
           </div>
         ) : (

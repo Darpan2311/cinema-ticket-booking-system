@@ -51,23 +51,25 @@ const RecommendedMovies = () => {
 
   useEffect(() => {
     const fetchRecommendedMovies = async () => {
-      if (userId) {
-        const recommendedMoviesData = await GetRecommendedMovies(userId);
-        if (
-          recommendedMoviesData &&
-          recommendedMoviesData.movieGenres.length > 0
-        ) {
-          const recommendedGenres = Object.keys(genres).filter((genre) =>
-            recommendedMoviesData.movieGenres.includes(genre),
-          );
-          const recommendedGenreIds = recommendedGenres.map(
-            (genre) => genres[genre],
-          );
-          setRecommendedMovies(recommendedMoviesData);
-          setGenreIds(recommendedGenreIds);
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/movies/recommended");
+        if (!response.ok) throw new Error("Failed to fetch recommended movies");
+    
+        const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+          console.error("API response is not an array:", data);
+          setMovies([]); // Set an empty array to prevent errors
+          return;
         }
+    
+        setMovies(data); // Update state with fetched movies
+      } catch (error) {
+        console.error("Error fetching recommended movies:", error);
+        setMovies([]); // Ensure movies is never undefined
       }
     };
+    
 
     fetchRecommendedMovies();
   }, [userId]);

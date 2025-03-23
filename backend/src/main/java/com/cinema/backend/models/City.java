@@ -2,6 +2,8 @@ package com.cinema.backend.models;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "cities")
 public class City {
@@ -29,4 +31,7 @@ public class City {
     public void setName(String name) {
         this.name = name;
     }
+
+
+
 }

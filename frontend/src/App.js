@@ -6,7 +6,7 @@ import NavBar from './layout/NavBar';
 import Home from './pages/Home';
 import MovieDetails from './pages/MovieDetails';
 import { isLoggedIn, login, logout } from './utils/Auth';
-
+import MyBookings from './pages/MyBookings';
 function App() {
   const [searchText, setSearchText] = useState('');
   const [user, setUser] = useState(null);
@@ -52,6 +52,7 @@ function App() {
             path='/'
             element={<Home searchText={searchText} user={user} selectedCity={selectedCity} />}
           />
+           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path='/movie/:id' element={<MovieDetails />} />
         </Routes>
         <Footer />

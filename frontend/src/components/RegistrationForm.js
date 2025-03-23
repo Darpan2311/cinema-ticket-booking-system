@@ -37,6 +37,7 @@ function RegistrationForm({ onClose }) {
     e.preventDefault();
 
     const success = await Register(BASE_URL, formData);
+    alert("Register successfully");
     if (success) {
       onClose();
       setFormData({
